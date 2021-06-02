@@ -12,12 +12,12 @@ class dataset(torch.utils.data.Dataset):
     return self.image
   def __len__(self):
       return 1
-def testabs(url,image):
+def testabs(url,image,abs_weights):
 
     data = dataset(transform=torchvision.transforms.ToTensor(), direct_path=url,image=image)
     tr_loader = torch.utils.data.DataLoader(dataset=data, batch_size=1, shuffle=True)
     model = torchvision.models.googlenet(pretrained=True)
-    model.load_state_dict(torch.load("weights/googlenetabs_cpu.pth",
+    model.load_state_dict(torch.load(abs_weights,
                                      map_location=torch.device("cpu")), )
     model = model.to(device=device)
     model.eval()
@@ -27,11 +27,11 @@ def testabs(url,image):
         predicts = model(images)
         temp,predictions=predicts.max(1)
     return predictions[0]
-def testchest( url,image):
+def testchest( url,image,chest_weights):
     data = dataset(transform=torchvision.transforms.ToTensor(), direct_path=url, image=image)
     tr_loader = torch.utils.data.DataLoader(dataset=data, batch_size=1, shuffle=True)
     model = torchvision.models.googlenet(pretrained=True)
-    model.load_state_dict(torch.load("weights/googlenetchest2_cpu.pth",
+    model.load_state_dict(torch.load(chest_weights,
                                      map_location=torch.device("cpu")), )
     model.eval()
     predictions = 1
