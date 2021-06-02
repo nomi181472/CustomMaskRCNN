@@ -18,7 +18,7 @@ def get_ax(rows=1, cols=1, size=16):
   return ax
 import tensorflow as tf
 print(tf.__version__)
-def setModel():
+def setModel(maskrcnn_weights):
     config = InferenceConfig()
     config.display()
     # Device to load the neural network on. Useful if you're training a model on the same machine, in which case use CPU and leave the GPU for training.
@@ -39,7 +39,7 @@ def setModel():
     with tf.device(DEVICE):
         model = modellib.MaskRCNN(mode="inference",model_dir=MODEL_DIR, config=config)
     # Load COCO weights Or, load the last model you trained
-    weights_path = "weights/mask_rcnn_object_0160.h5"
+    weights_path = maskrcnn_weights
 
     # Load weights
     print("Loading weights ", weights_path)
@@ -62,7 +62,7 @@ def setModel():
     # log("gt_mask", gt_mask)
     # This is for predicting images which are not present in dataset
     return model, dataset.class_names
-def predictLevel(boxes,image,class_names,class_ids):
+def predictLevel(boxes,image,class_names,class_ids,abs_weights,chest_weights):
     levels={}
     N = boxes.shape[0]
     for i in range(N):
@@ -76,11 +76,12 @@ def predictLevel(boxes,image,class_names,class_ids):
 
         plt.imsave("Cropped.png", cv2.cvtColor(crop_img, cv2.COLOR_BGR2RGB))
         if class_names[class_ids[i]] =="abs":
-            levels[class_names[class_ids[i]]]=int(testabs("Cropped.png",crop_img))
+            levels[class_names[class_ids[i]]]=int(testabs("Cropped.png",crop_img,abs_weights))
         elif class_names[class_ids[i]] =="chest":
-            levels[class_names[class_ids[i]]] = int(testchest("Cropped.png",crop_img))
+            levels[class_names[class_ids[i]]] = int(testchest("Cropped.png",crop_img,chest_weights))
     return  levels
-def predict(model,class_names,images):
+
+def predict(model,class_names,images,abs_weights,chest_weights):
 
 
     # Run object detection
@@ -90,7 +91,7 @@ def predict(model,class_names,images):
         # Display results
         ax = get_ax(1)
         r1 = results1[0]
-        levels=predictLevel(r1["rois"],images[i],class_names,r1['class_ids'])
+        levels=predictLevel(r1["rois"],images[i],class_names,r1['class_ids'],abs_weights,chest_weights)
         print(levels)
 
 
@@ -101,7 +102,9 @@ def predict(model,class_names,images):
         plt.savefig(filename,pad_inches=1)
     return levels
 
-
-model, class_name = setModel()
-image = cv2.imread("testimages/image.jpg")
-predict(model,class_name,[image])
+abs_weights="weights/googlenetabs_cpu.pth"
+chest_weights="weights/googlenetchest2_cpu.pth"
+maskrcnn_weights="weights/mask_rcnn_object_0160.h5"
+model, class_name = setModel(maskrcnn_weights)
+image = cv2.imread("contents/datasets/u1.jpg")
+predict(model,class_name,[image],abs_weights,chest_weights)
