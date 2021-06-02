@@ -40,6 +40,46 @@ def testchest( url,image,chest_weights):
         predicts = model(images)
         temp, predictions = predicts.max(1)
     return predictions[0]
+def testshoulder( url,image,shoulder_weights):
+    data = dataset(transform=torchvision.transforms.ToTensor(), direct_path=url, image=image)
+    tr_loader = torch.utils.data.DataLoader(dataset=data, batch_size=1, shuffle=True)
+    model = torchvision.models.googlenet(pretrained=True)
+    model.load_state_dict(torch.load(shoulder_weights,
+                                     map_location=torch.device("cpu")), )
+    model.eval()
+    predictions = 1
+    for images in tr_loader:
+        images = images.to(device=device)
+        predicts = model(images)
+        temp, predictions = predicts.max(1)
+    return predictions[0]
+def testthigh( url,image,thigh_weights):
+    data = dataset(transform=torchvision.transforms.ToTensor(), direct_path=url, image=image)
+    tr_loader = torch.utils.data.DataLoader(dataset=data, batch_size=1, shuffle=True)
+    model = torchvision.models.googlenet(pretrained=True)
+    model.load_state_dict(torch.load(thigh_weights,
+                                     map_location=torch.device("cpu")), )
+    model.eval()
+    predictions = 1
+    for images in tr_loader:
+        images = images.to(device=device)
+        predicts = model(images)
+        temp, predictions = predicts.max(1)
+    return predictions[0]
+def testbiceps( url,image,biceps_weights):
+    data = dataset(transform=torchvision.transforms.ToTensor(), direct_path=url, image=image)
+    tr_loader = torch.utils.data.DataLoader(dataset=data, batch_size=1, shuffle=True)
+    model = torchvision.models.googlenet(pretrained=True)
+    model.load_state_dict(torch.load(biceps_weights,
+                                     map_location=torch.device("cpu")), )
+    model.eval()
+    predictions = 1
+    for images in tr_loader:
+        images = images.to(device=device)
+        predicts = model(images)
+        temp, predictions = predicts.max(1)
+    return predictions[0]
+
 
 
 
